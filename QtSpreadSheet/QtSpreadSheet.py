@@ -78,7 +78,7 @@ class QSpreadSheetWidget(QTableView):
         colorCode = '#%02x%02x%02x' % (self.highlightColor.red(), self.highlightColor.green(), self.highlightColor.blue())
         print(colorCode)
         self.setStyleSheet(open(os.path.abspath('QtSpreadSheet/style.qss'), 'r').read().format(colorCode))
-        
+        self.setFocusPolicy(Qt.StrongFocus)
         return
 
 
@@ -138,6 +138,8 @@ class QSpreadSheetWidget(QTableView):
             self.state_ = 'N'
             return val
         if editor.text().strip()[0] == '=' and close==False:
+            editor.clearFocus()
+            self.setFocus()
             return
         val = QTableView.closeEditor(self, editor, hint)
         self.state_ = 'N'
