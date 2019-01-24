@@ -95,5 +95,5 @@ def mousePressEvent(self, event):
 
 def mouseReleaseEvent(self, event):
     if self.state_ == 'S':
-        
+        return
     return

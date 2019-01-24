@@ -77,7 +77,7 @@ class QSpreadSheetWidget(QTableView):
         # Set the widgets' stylesheet
         colorCode = '#%02x%02x%02x' % (self.highlightColor.red(), self.highlightColor.green(), self.highlightColor.blue())
         print(colorCode)
-        self.setStyleSheet(open(os.path.abspath('style.qss'), 'r').read().format(colorCode))
+        self.setStyleSheet(open(os.path.abspath('QtSpreadSheet/style.qss'), 'r').read().format(colorCode))
         
         return
 
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
     import sys
     #data = pd.DataFrame(np.random.random((30,4))).astype('object')
-    data = pd.read_excel('tests/PointDatasets.xlsx').astype('object')
+    data = pd.read_excel('QtSpreadSheet/tests/PointDatasets.xlsx').astype('object')
     application = QApplication(sys.argv)
     mw = QSpreadSheetWidget(highlightColor='#000000')
     mw.show()
