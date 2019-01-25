@@ -93,7 +93,10 @@ def mouseMoveEvent(self, event):
 
 def mousePressEvent(self, event):
     if self.state_ == 'S':
-        self.originalText = self.itemDelegate().editor.text()
+        if self.completedSelection:
+            self.originalText = self.itemDelegate().editor.text()
+            self.completedSelection = False
+        
         # Get index/location of click
         # make sure it's not the cell we're editing
         # store cell in range string

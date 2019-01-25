@@ -56,9 +56,12 @@ class QSpreadSheetWidget(QTableView):
         # State Variable
         # N: Normal Operation
         # D: Dragging Selection
+        # E: Editing cell value 
+        # EF: Editing cell value with formula
         # S: Selecting Range in cell edit
         # F: Filling Using Fill Handle
         self.state_ = 'N'
+        self.completedSelection = True
 
         # Set an item delegate
         self.delegate = QSpreadSheetItemDelegate(self)
@@ -104,11 +107,13 @@ class QSpreadSheetWidget(QTableView):
                 indexes = selection.indexes()
                 for index in indexes:
                     self.model().setData(index, "%DELETEDATA%")
+            return
         
         if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and self.state_=='N':
             ind = self.currentIndex()
             ind = ind.sibling(ind.row()+1, ind.column())
             self.setCurrentIndex(ind)
+            return
         
         if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and self.state_=='S':
             self.model().setData(self.delegate.index, self.delegate.editor.text())
@@ -116,7 +121,12 @@ class QSpreadSheetWidget(QTableView):
             ind = self.currentIndex()
             ind = ind.sibling(ind.row()+1, ind.column())
             self.setCurrentIndex(ind)
+            return
         
+        if self.state_ == 'S':
+            self.itemDelegate().editor.setText(self.itemDelegate().editor.text() + event.text())
+            self.completedSelection = True
+
         return
 
 
