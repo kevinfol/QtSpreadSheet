@@ -92,10 +92,10 @@ def mouseMoveEvent(self, event):
         return
 
 def mousePressEvent(self, event):
-    if self.state_ == 'S':
-        if self.completedSelection:
-            self.originalText = self.itemDelegate().editor.text()
-            self.completedSelection = False
+    if self.state_ == 'EF':
+        self.originalText = self.itemDelegate().editor.text()
+        self.state_ = 'S'
+        print('user is now selecting range')
         
         # Get index/location of click
         # make sure it's not the cell we're editing
@@ -106,11 +106,15 @@ def mousePressEvent(self, event):
     QTableView.mousePressEvent(self, event)
     return
 
-# def mouseReleaseEvent(self, event):
-#     if self.state_ == 'S':
-#         self.selection_range = self.selectionModel().selectedIndexes()
+def mouseReleaseEvent(self, event):
+    if self.state_ == 'S':
+        selection = self.selectionModel().selectedIndexes()
+        firstCol, lastCol = minmax([idx.column() for idx in selection])
+        firstRow, lastRow = minmax([idx.row() for idx in selection])
+        string = "{0}{1}:{2}{3}".format(cn2s(firstCol), firstRow + 1, cn2s(lastCol), lastRow + 1)
+        self.itemDelegate().editor.setText(self.originalText + string)
         
-#     return
+    return
 
 
 

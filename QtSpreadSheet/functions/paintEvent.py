@@ -22,7 +22,7 @@ def paintEvent(self, event):
         if selections == []:
             return
         for selection in selections:
-            
+            # Paint a border around all selections
             cell_top_left = self.visualRect(QModelIndex(selection.topLeft()))
             cell_bottom_right = self.visualRect(QModelIndex(selection.bottomRight()))
             new_rect = QRect(cell_top_left.topLeft(), cell_bottom_right.bottomRight())
@@ -36,7 +36,7 @@ def paintEvent(self, event):
             painter.drawRect(new_rect)
 
         if len(selections) == 1:
-
+            # Paint a fill handle on the bottom of selection
             self.fillHandleRect = QRect(cell_bottom_right.bottomRight().x() - 2, cell_bottom_right.bottomRight().y() - 2, 6, 6)
             painter.setBrush(self.highlightColor)
             pen = QPen(QBrush(QColor(255,255,255)), 1, join=Qt.MiterJoin)

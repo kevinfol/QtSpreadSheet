@@ -61,7 +61,6 @@ class QSpreadSheetWidget(QTableView):
         # S: Selecting Range in cell edit
         # F: Filling Using Fill Handle
         self.state_ = 'N'
-        self.completedSelection = True
 
         # Set an item delegate
         self.delegate = QSpreadSheetItemDelegate(self)
@@ -94,8 +93,8 @@ class QSpreadSheetWidget(QTableView):
     def mousePressEvent(self, event):
         mouse.mousePressEvent(self, event)
 
-    # def mouseReleaseEvent(self, event):
-    #     mouse.mouseReleaseEvent(self, event)
+    def mouseReleaseEvent(self, event):
+        mouse.mouseReleaseEvent(self, event)
 
     def keyPressEvent(self, event):
         """
@@ -115,7 +114,7 @@ class QSpreadSheetWidget(QTableView):
             self.setCurrentIndex(ind)
             return
         
-        if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and self.state_=='S':
+        if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and (self.state_=='E' or self.state_ == 'EF'):
             self.model().setData(self.delegate.index, self.delegate.editor.text())
             self.closeEditor(self.delegate.editor, 0, True)
             ind = self.currentIndex()
@@ -123,19 +122,28 @@ class QSpreadSheetWidget(QTableView):
             self.setCurrentIndex(ind)
             return
         
-        if self.state_ == 'S':
+        if self.state_ == 'E' and event.text() == '=':
+            self.state_ = 'EF'
+            print('user is now entering formula')
             self.itemDelegate().editor.setText(self.itemDelegate().editor.text() + event.text())
-            self.completedSelection = True
+            return
+
+        if self.state_ in ['E', 'EF','S']:
+            self.itemDelegate().editor.setText(self.itemDelegate().editor.text() + event.text())
 
         return
 
+    def editorReturningText(self, text):
+        """
+        Slot that recieves text changes from any open text editors
+        """
+
+        return
 
     def edit(self, index, trigger, event):
-        """
-        """
         value = QTableView.edit(self, index, trigger, event)
         if int(trigger) in [2, 8, 16]:
-            self.state_ = 'S'
+            self.state_ = 'E'
 
         return value
 
@@ -159,15 +167,17 @@ class QSpreadSheetWidget(QTableView):
     def commitData(self, editor):
         """
         """
-        if self.state_ == 'S':
+        if self.state_ == 'E':
             return
         val = QTableView.commitData(self, editor)
         return val
 
+
+
+
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
     import sys
-    #data = pd.DataFrame(np.random.random((30,4))).astype('object')
     data = pd.read_excel('QtSpreadSheet/tests/PointDatasets.xlsx').astype('object')
     application = QApplication(sys.argv)
     mw = QSpreadSheetWidget(highlightColor='#000000')
