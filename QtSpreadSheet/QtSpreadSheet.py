@@ -26,6 +26,7 @@ import numpy as np
 import pandas as pd
 import re
 import os
+import time
 
 class QSpreadSheetWidget(QTableView):
     """
@@ -88,7 +89,7 @@ class QSpreadSheetWidget(QTableView):
         paintEvent.paintEvent(self, event)
 
     def mouseMoveEvent(self, event):
-         mouse.mouseMoveEvent(self, event)
+        mouse.mouseMoveEvent(self, event)
 
     def mousePressEvent(self, event):
         mouse.mousePressEvent(self, event)
@@ -124,7 +125,6 @@ class QSpreadSheetWidget(QTableView):
         
         if self.state_ == 'E' and event.text() == '=':
             self.state_ = 'EF'
-            print('user is now entering formula')
             self.itemDelegate().editor.setText(self.itemDelegate().editor.text() + event.text())
             return
 
@@ -133,16 +133,10 @@ class QSpreadSheetWidget(QTableView):
 
         return
 
-    def editorReturningText(self, text):
-        """
-        Slot that recieves text changes from any open text editors
-        """
-
-        return
-
     def edit(self, index, trigger, event):
         value = QTableView.edit(self, index, trigger, event)
         if int(trigger) in [2, 8, 16]:
+            logMsg('user is now editing a cell')
             self.state_ = 'E'
 
         return value
@@ -173,7 +167,11 @@ class QSpreadSheetWidget(QTableView):
         return val
 
 
+def ctime():
+    return time.strftime('%Y-%m-%d %H-%M-%S', time.localtime(time.time()))
 
+def logMsg(msg):
+    print(ctime(), ": ", msg)
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout

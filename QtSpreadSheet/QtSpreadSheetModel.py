@@ -135,7 +135,14 @@ class QSpreadSheetModel(QAbstractItemModel):
         index (row/column) and the specified role (Display/Edit/Formula).
         """
         if value == '':
-            return False
+            if self.suppress_column_names:
+                self.dataArray[index.row()][index.column()] = ''
+            elif index.row() == 0:
+                return False
+            else:
+                self.dataArray[index.row()-1][index.column()] = ''
+            self.formulaArray[index.row()][index.column()] = ''
+            return True
         
         if isinstance(value, str) and value[0] == '=':
             try:
