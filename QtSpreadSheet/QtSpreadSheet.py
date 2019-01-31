@@ -59,7 +59,7 @@ class QSpreadSheetWidget(QTableView):
         # D: Dragging Selection
         # E: Editing cell value 
         # EF: Editing cell value with formula
-        # S: Selecting Range in cell edit
+        # EFS: Selecting Range in cell edit
         # F: Filling Using Fill Handle
         self.state_ = 'N'
 
@@ -102,8 +102,9 @@ class QSpreadSheetWidget(QTableView):
         """
         """
         print(event.text())
-        QTableView.keyPressEvent(self, event)
+        
         if event.key() == Qt.Key_Delete and self.state_=='N':
+            QTableView.keyPressEvent(self, event)
             selections = self.selectionModel().selection()
             for selection in selections:
                 indexes = selection.indexes()
@@ -112,12 +113,14 @@ class QSpreadSheetWidget(QTableView):
             return
         
         if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and self.state_=='N':
+            QTableView.keyPressEvent(self, event)
             ind = self.currentIndex()
             ind = ind.sibling(ind.row()+1, ind.column())
             self.setCurrentIndex(ind)
             return
         
-        if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and (self.state_=='E' or self.state_ == 'EF'):
+        if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and ('E' in self.state_):
+            QTableView.keyPressEvent(self, event)
             self.model().setData(self.delegate.index, self.delegate.editor.text())
             self.closeEditor(self.delegate.editor, 0, True)
             ind = self.currentIndex()
@@ -125,13 +128,25 @@ class QSpreadSheetWidget(QTableView):
             self.setCurrentIndex(ind)
             return
 
-        if self.state_ in ['E', 'EF','S']:
+        if self.state_ in ['E', 'EF','EFS']:
             self.itemDelegate().editor.setText(self.itemDelegate().editor.text() + event.text())
-
+            return
+        QTableView.keyPressEvent(self, event)
         return
 
     def editorTextEdited(self, newText):
-        print(newText)
+        print('New Text: ',newText)
+        if newText == '':
+            return
+        if newText[0] != '=':
+            self.state_ = 'E'
+            logMsg('user is just editing')
+        if newText == '=':
+            logMsg("User now editing formula")
+            self.state_ = 'EF'
+        if '=' in newText and self.state_ == 'EFS':
+            logMsg('User moving on to next selection')
+            self.state_ = 'EF'
 
     def edit(self, index, trigger, event):
         value = QTableView.edit(self, index, trigger, event)
@@ -145,10 +160,14 @@ class QSpreadSheetWidget(QTableView):
     def closeEditor(self, editor, hint, close=False):
         """
         """
-        if editor.text() != '' and editor.text().strip()[0] == '=' and close==False:
+        if 'E' in self.state_ and close == False:
             editor.clearFocus()
             self.setFocus()
             return
+        #if editor.text() != '' and editor.text().strip()[0] == '=' and close==False:
+        #    editor.clearFocus()
+        #    self.setFocus()
+        #    return
         val = QTableView.closeEditor(self, editor, hint)
         self.state_ = 'N'
 

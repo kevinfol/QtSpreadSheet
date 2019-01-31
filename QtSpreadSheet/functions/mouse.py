@@ -78,11 +78,11 @@ def mouseMoveEvent(self, event):
         return
 
 
-    if self.state_ == 'S' and event.buttons():
+    if self.state_ == 'EFS' and event.buttons():
         selection = self.selectionModel().selectedIndexes()
         firstCol, lastCol = minmax([idx.column() for idx in selection])
         firstRow, lastRow = minmax([idx.row() for idx in selection])
-        string = "{0}{1}:{2}{3}".format(cn2s(firstCol), firstRow + 1, cn2s(lastCol), lastRow + 1)
+        string = "{0}{1}:{2}{3}".format(cn2s(firstCol+1), firstRow + 1, cn2s(lastCol+1), lastRow + 1)
         self.itemDelegate().editor.setText(self.originalText + string)
         # Get index / location of mouse cursor
         # figure out selection
@@ -94,7 +94,7 @@ def mouseMoveEvent(self, event):
 def mousePressEvent(self, event):
     if self.state_ == 'EF':
         self.originalText = self.itemDelegate().editor.text()
-        self.state_ = 'S'
+        self.state_ = 'EFS'
         print('user is now selecting range')
         
         # Get index/location of click
@@ -107,11 +107,11 @@ def mousePressEvent(self, event):
     return
 
 def mouseReleaseEvent(self, event):
-    if self.state_ == 'S':
+    if self.state_ == 'EFS':
         selection = self.selectionModel().selectedIndexes()
         firstCol, lastCol = minmax([idx.column() for idx in selection])
         firstRow, lastRow = minmax([idx.row() for idx in selection])
-        string = "{0}{1}:{2}{3}".format(cn2s(firstCol), firstRow + 1, cn2s(lastCol), lastRow + 1)
+        string = "{0}{1}:{2}{3}".format(cn2s(firstCol+1), firstRow + 1, cn2s(lastCol+1), lastRow + 1)
         self.itemDelegate().editor.setText(self.originalText + string)
         
     return
