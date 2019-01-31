@@ -66,6 +66,7 @@ class QSpreadSheetWidget(QTableView):
         # Set an item delegate
         self.delegate = QSpreadSheetItemDelegate(self)
         self.setItemDelegate(self.delegate)
+        self.delegate.textEditedSignal.connect(self.editorTextEdited)
 
         # Set the higlight color
         if 'highlightColor' in list(kwargs.keys()):
@@ -100,6 +101,7 @@ class QSpreadSheetWidget(QTableView):
     def keyPressEvent(self, event):
         """
         """
+        print(event.text())
         QTableView.keyPressEvent(self, event)
         if event.key() == Qt.Key_Delete and self.state_=='N':
             selections = self.selectionModel().selection()
@@ -122,16 +124,14 @@ class QSpreadSheetWidget(QTableView):
             ind = ind.sibling(ind.row()+1, ind.column())
             self.setCurrentIndex(ind)
             return
-        
-        if self.state_ == 'E' and event.text() == '=':
-            self.state_ = 'EF'
-            self.itemDelegate().editor.setText(self.itemDelegate().editor.text() + event.text())
-            return
 
         if self.state_ in ['E', 'EF','S']:
             self.itemDelegate().editor.setText(self.itemDelegate().editor.text() + event.text())
 
         return
+
+    def editorTextEdited(self, newText):
+        print(newText)
 
     def edit(self, index, trigger, event):
         value = QTableView.edit(self, index, trigger, event)
@@ -145,11 +145,7 @@ class QSpreadSheetWidget(QTableView):
     def closeEditor(self, editor, hint, close=False):
         """
         """
-        if editor.text() == '':
-            val = QTableView.closeEditor(self, editor, hint)
-            self.state_ = 'N'
-            return val
-        if editor.text().strip()[0] == '=' and close==False:
+        if editor.text() != '' and editor.text().strip()[0] == '=' and close==False:
             editor.clearFocus()
             self.setFocus()
             return
@@ -161,8 +157,6 @@ class QSpreadSheetWidget(QTableView):
     def commitData(self, editor):
         """
         """
-        if self.state_ == 'E':
-            return
         val = QTableView.commitData(self, editor)
         return val
 
