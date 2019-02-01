@@ -160,7 +160,7 @@ class QSpreadSheetWidget(QTableView):
     def closeEditor(self, editor, hint, close=False):
         """
         """
-        if 'E' in self.state_ and close == False:
+        if 'EF' in self.state_ and close == False:
             editor.clearFocus()
             self.setFocus()
             return
@@ -176,6 +176,7 @@ class QSpreadSheetWidget(QTableView):
     def commitData(self, editor):
         """
         """
+        print('trying to commit data')
         val = QTableView.commitData(self, editor)
         return val
 
@@ -191,7 +192,7 @@ if __name__ == '__main__':
     import sys
     data = pd.read_excel('QtSpreadSheet/tests/PointDatasets.xlsx').astype('object')
     application = QApplication(sys.argv)
-    mw = QSpreadSheetWidget(highlightColor='#000000')
+    mw = QSpreadSheetWidget(highlightColor='#4baf90')
     mw.show()
     mw.model().load_new_dataset(data)
     def run_():
